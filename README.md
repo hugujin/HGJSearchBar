@@ -2,8 +2,10 @@
 * 在分类中扩展系统搜索框，自动显示隐藏取消按钮
 * 添加了输入栏的背景颜色属性
 * 创建后默认宽度为屏幕宽高度44，可以继续按照普通搜索栏自定义
+
 ##CocoaPods
 ``` pod 'HGJSearchBar' ```
+
 ##Requirements
 * Swift
 * Xcode 5 or higher
