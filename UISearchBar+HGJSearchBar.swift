@@ -17,17 +17,15 @@
     二.使用方法:
              1.创建搜索栏，默认输入框0.92灰度,输入栏边框白色,屏幕宽度44高度。
  
-                let searchBar = UISearchBar().HGJSearchBar
+                let searchBar = UISearchBar(HGJDelegate: self)
  
  
+             2.修改输入栏背景颜色（默认0.92灰度）
  
-             2.指定代理，获取每次文字改变后的文本
- 
-                 searchBar.HGJDelegate = self
- 
+                searchBar.textfieldColor = UIColor.red
  
  
-             3.代理对象实现HGJSearchDelegate代理方法
+             2.代理对象实现HGJSearchDelegate代理方法
  
                  func HGJSearchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
                      print(searchText)
@@ -50,6 +48,31 @@ public protocol HGJSearchDelegate : NSObjectProtocol {
 
 
 extension UISearchBar {
+    
+    
+    
+    //MARK: - Interface
+    convenience init(HGJDelegate delegate : HGJSearchDelegate ,_ placeholder : String = "搜索") {
+        
+        self.init()
+        
+        // 0.设置大小
+        self.frame = CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: 44)
+        
+        // 1.设置颜色
+        self.textfieldColor = UIColor.init(white: 0.95, alpha: 1)
+        self.barTintColor = UIColor.white
+        
+        // 1.2设置代理
+        self.originalDelegateContainer = HGJOriginalDelegateContainer.init(searchBar: self)
+        self.delegate = self.originalDelegateContainer
+        self.HGJDelegate = delegate
+        
+        // 1.3占位符
+        self.placeholder = placeholder
+        
+    }
+    
     
     
     //MARK: - Property
@@ -107,38 +130,6 @@ extension UISearchBar {
         }
         
     }
-    
-    
-    
-    /** 创建自定义搜索栏 */
-    final var HGJSearchBar : UISearchBar {
-        
-        get {
-            
-            // 0.设置大小
-            self.frame = CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: 44)
-            
-            // 1.设置颜色
-            self.textfieldColor = UIColor.init(white: 0.95, alpha: 1)
-            self.barTintColor = UIColor.white
-            
-            // 1.2设置代理
-            self.originalDelegateContainer = HGJOriginalDelegateContainer.init(searchBar: self)
-            self.delegate = self.originalDelegateContainer
-
-            // 1.3占位符
-            self.placeholder = "搜索"
-            
-            return self
-        }
-        
-    }
-    
-    
-    
-    
-    
-    
     
 }
 
