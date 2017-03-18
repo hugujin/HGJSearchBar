@@ -44,6 +44,7 @@ public protocol HGJSearchDelegate : NSObjectProtocol {
     
 }
 
+typealias HGJSearchBlock = (_ searchBar: UISearchBar, _ searchText: String) -> Void
 
 
 
@@ -56,22 +57,45 @@ extension UISearchBar {
         
         self.init()
         
-        // 0.设置大小
-        self.frame = CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: 44)
+        // 1.配置系统搜索栏
+        self.setupSearchBar()
         
-        // 1.设置颜色
-        self.textfieldColor = UIColor.init(white: 0.95, alpha: 1)
-        self.barTintColor = UIColor.white
+        // 2.占位符
+        self.placeholder = placeholder
         
-        // 1.2设置代理
+        // 3.设置原系统代理处理容器
         self.originalDelegateContainer = HGJOriginalDelegateContainer.init(searchBar: self)
         self.delegate = self.originalDelegateContainer
+
+        // 4.设置自定义代理
         self.HGJDelegate = delegate
+        
+    }
+    
+    
+    convenience init(HGJSearchBlock block : @escaping HGJSearchBlock ,_ placeholder : String = "搜索") {
+        
+        self.init()
+        
+        // 1.配置系统搜索栏
+        self.setupSearchBar()
+        
+        // 2.设置原系统代理处理容器
+        let container = HGJOriginalDelegateContainer.init(searchBar: self)
+        container.searchBlock = block
+        self.originalDelegateContainer = container
+        self.delegate = self.originalDelegateContainer
+        
         
         // 1.3占位符
         self.placeholder = placeholder
         
     }
+    
+    
+    
+    
+    
     
     
     
@@ -131,6 +155,33 @@ extension UISearchBar {
         
     }
     
+    
+    
+    
+    
+    
+    
+    
+    
+    //MARK: - PrivateFunctions
+    
+    /** 配置搜索栏 */
+    
+    private func setupSearchBar() {
+        
+        
+        // 0.设置大小
+        self.frame = CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: 44)
+        
+        // 1.设置颜色
+        self.textfieldColor = UIColor.init(white: 0.95, alpha: 1)
+        self.barTintColor = UIColor.white
+        
+    }
+    
+    
+    
+    
 }
 
 
@@ -151,13 +202,18 @@ fileprivate class HGJOriginalDelegateContainer : NSObject, UISearchBarDelegate {
     
     //MARK: - Property
     
+    /** delegate */
     var searchBar : UISearchBar?
+    
+    /** block */
+    var searchBlock : HGJSearchBlock?
     
     
     //MARK: - Initial
-    convenience init(searchBar: UISearchBar) {
+    convenience init(searchBar: UISearchBar, block: HGJSearchBlock? = Optional.none) {
         self.init()
         self.searchBar = searchBar
+        self.searchBlock = block
     }
     
     
@@ -180,11 +236,18 @@ fileprivate class HGJOriginalDelegateContainer : NSObject, UISearchBarDelegate {
     
     /** 输入框改变 */
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-
-        guard self.searchBar?.delegate != nil else {return}
         
-        self.searchBar?.HGJDelegate?.HGJSearchBar(searchBar, textDidChange: searchText)
         
+        guard self.searchBlock != nil else {
+        
+            guard self.searchBar?.delegate != nil else {return}
+            
+            self.searchBar?.HGJDelegate?.HGJSearchBar(searchBar, textDidChange: searchText)
+        
+            return
+        }
+        
+        self.searchBlock!(searchBar, searchText)
     }
     
     
